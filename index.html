@@ -31,8 +31,8 @@ input,textarea{font:inherit;color:inherit;background:var(--bg);border:1px solid 
 @keyframes rise{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-90px)}}
 .fx{position:absolute;left:50%;top:40%;font-size:30px;animation:rise 1.6s ease forwards}
 .bubble{display:inline-block;background:var(--card);border-radius:18px;padding:8px 14px;font-weight:700;font-size:14px;margin:2px 0 6px}
-.acts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
-.acts button{display:flex;flex-direction:column;gap:2px;padding:8px 2px;font-size:11px;background:var(--card)}.acts span{font-size:22px}
+.acts{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:10px}.wrap{flex-wrap:wrap;overflow:visible}.needs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:6px;font-size:15px}.needs .bar{height:6px;margin-top:3px}
+.acts button{display:flex;flex-direction:column;gap:2px;padding:8px 2px;font-size:10px;background:var(--card)}.acts span{font-size:22px}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
 .me{display:flex;align-items:center;gap:10px}.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-size:24px;border:0;padding:0;flex:0 0 46px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.chips button{flex:0 0 auto;background:var(--card);border:1px solid var(--line)}.chips .on{background:var(--blue);color:#13263a}
@@ -58,9 +58,16 @@ const fmt=d=>new Date(d+'T12:00').toLocaleDateString('ru-RU',{day:'numeric',mont
 const tg=window.Telegram&&Telegram.WebApp;
 const PET={name:'Тоши',body:'#8ec5f2',belly:'#e4f3fd',ear:'#ffc3bb'};
 const NAMES={a:'Аня',b:'Макс'},MOODS=['😊','🥰','😴','🤩','🥺','😤'];
-const ACT=[['feed','🍓','Кормить','Ням-ням! Очень вкусно'],['play','🎾','Играть','Ура, давай ещё!'],['pet','🤍','Гладить','Мурр… так приятно'],['bath','🫧','Купать','Пузырики! Хихи'],['sleep','🌙','Спать','Zzz… спокойной ночи']];
+const ACT=[['feed','🍓','Кормить','Ням-ням! Очень вкусно'],['water','💧','Поить','Глоть-глоть, спасибо!'],['play','🎾','Играть','Ура, давай ещё!'],['pet','🤍','Гладить','Мурр… так приятно'],['bath','🫧','Купать','Пузырики! Хихи'],['sleep','🌙','Спать','Zzz… спокойной ночи']];
 const Q=['Какой момент этой недели ты хочешь запомнить?','Что тебя недавно рассмешило?','Куда бы ты поехал(а) завтра, если бы можно было всё?','Какая мелочь делает твой день лучше?','За что ты сегодня благодарен(на)?','Какую привычку мы могли бы завести вдвоём?'];
-const IDEAS={home:[['Устроить киновечер с попкорном',0],['Приготовить новое блюдо вместе',1],['Построить крепость из подушек',0],['Викторина друг про друга',0],['Нарисовать друг друга за 1 минуту',0],['Домашняя пицца с любимыми начинками',1]],out:[['Прогулка до заката',0],['Поехать на велосипедах',0],['Пикник в парке',1],['Фотопрогулка по незнакомому району',0],['Кофе навынос и скамейка у воды',1]],venue:[['Десерт в новой кофейне',1],['Ужин в кафе с кухней, которую не пробовали',2],['Кино на большом экране',2],['Боулинг или бильярд',2],['Выставка или музей',2],['Каток или скалодром',2]],trip:[['Однодневная поездка на электричке',1],['Выходные в соседнем городе',2],['Выбрать точку на карте наугад и поехать',1],['Поход с палаткой',1],['Ночь в загородном домике',2]]};
+const IC={home:['🏠','Дома'],out:['🌳','На улице'],food:['🍕','Еда'],game:['🎮','Игры'],love:['💗','Романтика'],new:['🎭','Новые впечатления'],talk:['🧠','Общение']};
+const ID={home:['Киновечер с попкорном и пледами','Приготовить завтрак друг для друга','Построить крепость из подушек','Домашний спа-вечер: маски и массаж','Собрать пазл вдвоём','Устроить танцы на кухне','Пересмотреть старые фото и вспомнить моменты','Разучить новый танец по видео'],
+out:['Прогулка на закат','Пикник в парке','Фотопрогулка по незнакомому району','Покататься на велосипедах или самокатах','Найти самую красивую точку в городе','Прогулка босиком по траве или песку','Запустить воздушного змея','Утренняя прогулка с кофе'],
+food:['Испечь пиццу с любимыми начинками','Дегустация: пробуем разные сорта чая или сыра','Блюдо из трёх случайных продуктов','Завтрак в кафе, где вы ещё не были','Испечь печенье и украсить вместе','Попробовать кухню другой страны','Ужин при свечах дома','Домашние роллы или бургеры'],
+game:['Турнир в любимую видеоигру','Настольная игра на весь вечер','Викторина: кто лучше знает другого','Нарисовать друг друга за минуту','Мини-олимпиада дома','Угадай песню по трём нотам','Квест с записками по квартире','Битва в «Крокодил» вдвоём'],
+love:['Написать друг другу письма и обменяться','Устроить сюрприз без повода','Составить список общих мечт на год','Повторить ваше первое свидание','Сыграть в «36 вопросов, чтобы влюбиться»','Сделать общий плейлист','Подарить маленький подарок своими руками','Свидание «как в первый раз»'],
+new:['Мастер-класс: керамика, рисование или готовка','Выставка или необычный музей','Поездка в город, где вы ещё не были','Попробовать новый вид спорта','Концерт или спектакль','Исследовать район, где ни разу не были','Скалодром или каток','Пробное занятие танцами'],
+talk:['Вопросы друг другу о детстве','Обсудить, как вы видите жизнь через пять лет','Сказать, за что вы благодарны друг другу','Поделиться страхами и мечтами','Выбрать общую цель на месяц','Вспомнить самые смешные моменты вместе','Рассказать, что в партнёре вас вдохновляет','Обсудить, куда бы вы поехали вместе']};
 const SH=[
 {id:'bow',n:'Бантик',e:'🎀',slot:'neck',c:20,lvl:1,svg:'<g fill="#ff8fab"><path d="M100 160L80 150V172Z"/><path d="M100 160L120 150V172Z"/><circle cx="100" cy="160" r="6"/></g>'},
 {id:'glasses',n:'Очки',e:'🕶️',slot:'face',c:30,lvl:2,svg:'<g fill="none" stroke="#22304a" stroke-width="4"><circle cx="78" cy="100" r="15"/><circle cx="122" cy="100" r="15"/><path d="M93 100H107"/></g>'},
@@ -74,9 +81,14 @@ let sb,me,SP,MEM=[],E=[],S={coins:0,xp:0,lvl:1,own:[],wear:[]},screen='load',err
 const mine=()=>MEM.find(m=>m.user_id===me.id),other=()=>MEM.find(m=>m.user_id!==me.id);
 const uname=u=>(MEM.find(m=>m.user_id===u)||{}).name||'?',col=u=>u===me.id?'peach':'mint';
 const ent=k=>E.filter(x=>x.kind===k);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const fmtY=d=>new Date(d+'T12:00').toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+const pl=(n,f)=>{const a=n%100,b=n%10;return n+' '+(a>10&&a<15?f[2]:b===1?f[0]:b>1&&b<5?f[1]:f[2])};
+const sleeping=()=>S.sleep_until>Date.now()/1000;
+let editRel=false,icats=Object.keys(IC),cur=null,iview='main',recent=[];
 function fail(e){const m=String((e&&e.message)||e),M={'code not found':'Код не найден. Проверьте его и попробуйте ещё раз.','space is full':'В этом пространстве уже двое.','already in a space':'Вы уже в пространстве.','already in another space':'Вы уже в другом пространстве.'};const t=M[m]||'Ошибка: '+m;tg&&tg.showAlert?tg.showAlert(t):alert(t)}
-const save=()=>{sb.from('spaces').update({state:S}).eq('id',SP.id).then(r=>{if(r.error)fail(r.error)})};
+async function patch(o){const r=await sb.rpc('state_patch',{p_space:SP.id,p_patch:o});if(r.error)return fail(r.error);S=Object.assign({},S,r.data)}
+async function sync(){try{const r=await sb.rpc('pet_sync',{p_space:SP.id});if(r.error)return;S=Object.assign({},S,r.data);const a=document.activeElement;if(screen==='app'&&(!a||!/INPUT|TEXTAREA/.test(a.tagName)))render()}catch(e){}}
 
 async function boot(){
  try{
@@ -102,7 +114,7 @@ function subscribe(){
  sb.channel('sp').on('postgres_changes',{event:'*',schema:'public',table:'entries'},soon)
   .on('postgres_changes',{event:'*',schema:'public',table:'members',filter:'space_id=eq.'+SP.id},soon)
   .on('postgres_changes',{event:'*',schema:'public',table:'spaces',filter:'id=eq.'+SP.id},soon).subscribe();
- setInterval(soon,20000);
+ setInterval(soon,20000);sync();setInterval(sync,300000);
 }
 async function afterJoin(){try{const m=await sb.from('members').select('space_id').eq('user_id',me.id).maybeSingle();await fetchAll(m.data.space_id);subscribe();screen='app';render()}catch(e){fail(e)}}
 async function create(){const r=await sb.rpc('create_space',{p_kind:kind,p_name:$('#nm').value.trim()||'Я'});if(r.error)return fail(r.error);afterJoin()}
@@ -112,10 +124,13 @@ async function updE(id,data){const r=await sb.from('entries').update({data,updat
 async function delE(id){const r=await sb.from('entries').delete().eq('id',id);if(r.error)return fail(r.error);await fetchAll(SP.id);render()}
 function share(){const l=`https://t.me/${BOT}?startapp=${SP.code}`;tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l)+'&text='+encodeURIComponent('Присоединяйся к нашему уголку 💙 Код: '+SP.code))}
 
-function act(k){const a=ACT.find(x=>x[0]===k);ps=k;bubble=a[3];S.coins+=2;S.xp+=10;
- if(S.xp>=100){S.xp-=100;S.lvl++;bubble='Новый уровень: '+S.lvl+'! 🎉'}
- save();render();setTimeout(()=>{if(ps===k){ps='';render()}},k==='sleep'?4000:1800)}
-function pet(){return `<svg class="pet ${ps&&ps!=='sleep'?'go':''} ${ps==='sleep'?'sleepy':'open'}" viewBox="0 0 200 200" role="img" aria-label="${PET.name}">
+const PM={full:'Я сыт, спасибо! Попозже 🍓',notthirsty:'Пить пока не хочу 💧',tired:'Я устал, мне нужно поспать 😴',happy:'Мне и так прекрасно 🥰',clean:'Я уже чистый ✨',notsleepy:'Спать пока не хочется'};
+function petMsg(m){if(PM[m])return PM[m];if(m.startsWith('cooldown:'))return 'Давай чуть позже: подожди ещё '+Math.ceil(m.slice(9)/60)+' мин ⏳';if(m.startsWith('sleeping:'))return 'Тсс, я сплю до '+new Date(m.slice(9)*1000).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+' 😴';return 'Что-то пошло не так, попробуйте ещё раз'}
+async function act(k){const r=await sb.rpc('pet_act',{p_space:SP.id,p_action:k});
+ if(r.error){bubble=petMsg(r.error.message);ps='';render();return}
+ const l0=S.lvl;S=Object.assign({},S,r.data);ps=k;bubble=S.lvl>l0?'Новый уровень: '+S.lvl+'! 🎉':ACT.find(x=>x[0]===k)[3];
+ render();setTimeout(()=>{if(ps===k){ps='';render()}},k==='sleep'?4000:1800)}
+function pet(){return `<svg class="pet ${ps&&ps!=='sleep'?'go':''} ${(ps==='sleep'||sleeping())?'sleepy':'open'}" viewBox="0 0 200 200" role="img" aria-label="${PET.name}">
 <g fill="${PET.body}"><ellipse cx="46" cy="64" rx="17" ry="40" transform="rotate(-25 46 64)"/><ellipse cx="154" cy="64" rx="17" ry="40" transform="rotate(25 154 64)"/></g>
 <g fill="${PET.ear}"><ellipse cx="47" cy="66" rx="8" ry="26" transform="rotate(-25 47 66)"/><ellipse cx="153" cy="66" rx="8" ry="26" transform="rotate(25 153 66)"/></g>
 ${worn('back')}<ellipse cx="62" cy="178" rx="20" ry="10" fill="${PET.body}"/><ellipse cx="138" cy="178" rx="20" ry="10" fill="${PET.body}"/>
@@ -125,17 +140,36 @@ ${worn('back')}<ellipse cx="62" cy="178" rx="20" ry="10" fill="${PET.body}"/><el
 <g class="z" fill="none" stroke="#22304a" stroke-width="4" stroke-linecap="round"><path d="M69 102 Q78 109 87 102"/><path d="M113 102 Q122 109 131 102"/></g>
 <path d="M88 118 Q100 130 112 118" fill="none" stroke="#22304a" stroke-width="4" stroke-linecap="round"/>${worn('neck')}${worn('face')}${worn('head')}</svg>`}
 
-function pick(){const l=IDEAS[cat].filter(x=>bud===2||x[1]<=bud);idea=l[Math.floor(Math.random()*l.length)][0];render()}
-function ideas(){const C={home:'🏠 Дома',out:'🌳 Вне дома',venue:'🍽️ В заведениях',trip:'🧳 Путешествия'},B=[[0,'Бесплатно'],[1,'Недорого'],[2,'Любой бюджет']];
- return `<h1>Чем заняться?</h1><div class="chips">${Object.keys(C).map(k=>`<button class="${cat===k?'on':''}" onclick="cat='${k}';idea=null;render()">${C[k]}</button>`).join('')}</div>
- <div class="chips" style="margin-top:8px">${B.map(b=>`<button class="${bud===b[0]?'on':''}" onclick="bud=${b[0]};idea=null;render()">${b[1]}</button>`).join('')}</div>
- <div class="idea">${idea?esc(idea):'Нажмите кнопку, и мы подберём идею'}</div><button style="width:100%;background:var(--blue)" onclick="pick()">Предложить идею</button>`}
+function pick(){if(!icats.length)icats=Object.keys(IC);let p=[];icats.forEach(c=>ID[c].forEach(t=>{if(!recent.includes(t))p.push({c,t})}));if(!p.length){recent=[];return pick()}cur=p[Math.floor(Math.random()*p.length)];recent.push(cur.t);if(recent.length>30)recent.shift();render()}
+function tc(c){icats=icats.includes(c)?icats.filter(x=>x!==c):icats.concat(c);if(!icats.length)icats=Object.keys(IC);render()}
+function favT(){const f=ent('idea_fav').find(x=>x.data.t===cur.t);f?delE(f.id):addE('idea_fav',{t:cur.t,c:cur.c})}
+async function doneI(){await addE('idea_done',{t:cur.t,c:cur.c,d:today()});pick()}
+function lst(a,del){return `<div class="card" style="margin-top:8px">${a.length?a.slice().reverse().map(x=>`<div class="item"><span class="t">${IC[x.data.c]?IC[x.data.c][0]:''} ${esc(x.data.t)}${x.data.d?`<div class="muted">${fmt(x.data.d)}</div>`:''}</span>${del?`<button class="x" aria-label="Убрать" onclick="delE('${x.id}')">✕</button>`:''}</div>`).join(''):'<p class="muted">Пока пусто.</p>'}</div>`}
+function ideas(){const fav=ent('idea_fav'),dn=ent('idea_done'),isF=cur&&fav.find(x=>x.data.t===cur.t);
+ return `<h1>Чем заняться?</h1><div class="chips wrap">${Object.keys(IC).map(c=>`<button class="${icats.includes(c)?'on':''}" onclick="tc('${c}')">${IC[c][0]} ${IC[c][1]}</button>`).join('')}</div>
+ <div class="idea">${cur?`<div class="muted" style="margin-bottom:6px">${IC[cur.c][0]} ${IC[cur.c][1]}</div>${esc(cur.t)}`:'Нажмите «Подобрать», и мы предложим занятие'}</div>
+ <div class="row"><button style="background:var(--blue)" onclick="pick()">${cur?'🔄 Ещё вариант':'🎲 Подобрать'}</button>${cur?`<button class="fix" aria-label="Избранное" onclick="favT()">${isF?'💔':'❤️'}</button><button class="fix" aria-label="Выполнено" onclick="doneI()">✔️</button>`:''}</div>
+ <div class="chips" style="margin-top:14px"><button class="${iview==='fav'?'on':''}" onclick="iview=iview==='fav'?'main':'fav';render()">❤️ Избранное (${fav.length})</button><button class="${iview==='done'?'on':''}" onclick="iview=iview==='done'?'main':'done';render()">✔️ История (${dn.length})</button></div>
+ ${iview==='fav'?lst(fav,1):iview==='done'?lst(dn,0):''}`}
 
+function needs(){const N=S.needs||{};return `<div class="needs">${[['🍗','hunger','Голод'],['💧','thirst','Жажда'],['😴','energy','Энергия'],['❤️','mood','Настроение'],['🧼','clean','Чистота']].map(x=>`<div title="${x[2]}" aria-label="${x[2]}">${x[0]}<div class="bar"><i style="width:${N[x[1]]==null?80:N[x[1]]}%"></i></div></div>`).join('')}</div>`}
+const MS=[30,50,100,150,180,200,250,300,365,500,730,1000,1095,1500,1825,2000,3000];
+function rel(){const d=S.rel_start;if(!d)return null;const a=new Date(d+'T00:00'),n=new Date(),b=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+ let y=b.getFullYear()-a.getFullYear(),m=b.getMonth()-a.getMonth(),dd=b.getDate()-a.getDate();
+ if(dd<0){m--;dd+=new Date(b.getFullYear(),b.getMonth(),0).getDate()}if(m<0){y--;m+=12}
+ const days=Math.max(0,Math.round((b-a)/864e5)),anniv=y>0&&m===0&&dd===0;let ny=new Date(b.getFullYear(),a.getMonth(),a.getDate());if(ny<=b)ny=new Date(b.getFullYear()+1,a.getMonth(),a.getDate());
+ const P=[];if(y)P.push(pl(y,['год','года','лет']));if(m)P.push(pl(m,['месяц','месяца','месяцев']));if(dd||!P.length)P.push(pl(dd,['день','дня','дней']));
+ return {days,text:P.join(', '),anniv,toAnn:Math.round((ny-b)/864e5),ms:MS.includes(days),next:MS.find(x=>x>days)}}
+function setRel(){const v=$('#rd').value;if(!v)return;if(v>today())return tg.showAlert('Дата начала не может быть в будущем');editRel=false;patch({rel_start:v}).then(render)}
+function relCard(){const r=rel(),D=['день','дня','дней'];return `<h2 style="margin-top:0">❤️ Наши отношения</h2><div class="card" style="text-align:center">${r&&!editRel?`<div class="muted">Вместе с ${fmtY(S.rel_start)}</div><div style="font-size:22px;font-weight:800;margin:6px 0">💞 ${r.text}</div><div>✨ ${pl(r.days,D)} вместе</div>
+ <div class="muted" style="margin-top:8px">${r.anniv?'🎉 Сегодня ваша годовщина!':r.ms?'🎉 Сегодня ровно '+pl(r.days,D)+' вместе!':''}</div>
+ <div class="muted">До годовщины: ${pl(r.toAnn,D)}${r.next?` · до ${r.next} дн.: ${pl(r.next-r.days,D)}`:''}</div><button style="margin-top:10px" onclick="editRel=true;render()">Изменить дату</button>`
+ :`<b>Когда началась ваша история?</b><div class="row" style="margin-top:10px"><input id="rd" type="date" max="${today()}" value="${S.rel_start||''}"><button class="fix" onclick="setRel()">Сохранить</button></div>`}</div>`}
 
 function onb(){const sp=(tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||'',K=[['couple','💞 Пара'],['friends','🤝 Друзья'],['custom','✨ Свой вариант']];
  return `<h1>Добро пожаловать 💙</h1><div class="card"><b>Как вас зовут?</b><input id="nm" value="${esc(me.name)}" style="margin-top:8px">
  ${sp?`<p>Вас пригласили в общее пространство.</p><button style="width:100%;background:var(--blue)" onclick="join('${esc(sp)}')">Присоединиться</button>`
- :`<h2>Какое у вас пространство?</h2><div class="chips">${K.map(k=>`<button class="${kind===k[0]?'on':''}" onclick="kind='${k[0]}';render()">${k[1]}</button>`).join('')}</div>
+ :`<h2>Какое у вас пространство?</h2><div class="chips wrap">${K.map(k=>`<button class="${kind===k[0]?'on':''}" onclick="kind='${k[0]}';render()">${k[1]}</button>`).join('')}</div>
  <button style="width:100%;margin-top:12px;background:var(--blue)" onclick="create()">Создать пространство</button>
  <h2>Или введите код приглашения</h2><div class="row"><input id="cd" placeholder="Код" style="text-transform:uppercase"><button class="fix" onclick="join()">Войти</button></div>`}</div>`}
 
@@ -146,15 +180,16 @@ function home(){const a=mine(),b=other(),day=today(),q=Q[Math.floor(Date.now()/8
  return `<h1>Наш уголок</h1>
  <div class="room"><div class="stats"><span>🪙 ${S.coins}</span><span>Ур. ${S.lvl}</span><div class="bar"><i style="width:${S.xp}%"></i></div></div>
  ${ps?`<span class="fx">${ps==='feed'?'🍓':ps==='sleep'?'💤':ps==='bath'?'🫧':'💙'}</span>`:''}
- ${pet()}<div class="bubble">${esc(bubble)}</div></div>
+ ${pet()}<div class="bubble">${esc(bubble)}</div>${needs()}</div>
  <div class="acts">${ACT.map(x=>`<button onclick="act('${x[0]}')"><span>${x[1]}</span>${x[2]}</button>`).join('')}</div>
  <div class="duo">${pc(a,1)}${pc(b,0)}</div>
  ${b?'':`<div class="card" style="margin-top:12px"><b>Пригласите второго человека</b><p class="muted">Код приглашения:</p><div class="code">${esc(SP.code)}</div><button style="margin-top:10px;background:var(--blue)" onclick="share()">Отправить приглашение</button></div>`}
  <h2>Вопрос дня</h2><div class="card"><b>${q}</b>
  ${my?`<p>Ты: «${esc(my.data.t)}»</p>${th?`<p>${esc(uname(th.created_by))}: «${esc(th.data.t)}»</p>`:'<p class="muted">Ответ второго человека появится здесь.</p>'}`:`<div class="row" style="margin-top:10px"><input id="qa" placeholder="Твой ответ"><button class="fix" onclick="answer()">Ответить</button></div>`}</div>
+ ${rel()?`<div class="card" style="margin-top:12px;text-align:center">❤️ Вместе уже <b>${pl(rel().days,['день','дня','дней'])}</b></div>`:''}
  <h2>Ближайшее</h2><div class="card">${nx?`<b>${esc(nx.t)}</b> — ${fmt(nx.d)}`:'<span class="muted">Пока ничего не запланировано</span>'}</div>`}
 async function mood(){const m=mine();m.mood=MOODS[(MOODS.indexOf(m.mood)+1)%MOODS.length];render();const r=await sb.from('members').update({mood:m.mood}).match({space_id:SP.id,user_id:me.id});if(r.error)fail(r.error)}
-function answer(){const v=$('#qa').value.trim();if(!v)return;S.coins+=3;save();addE('answer',{day:today(),t:v})}
+function answer(){const v=$('#qa').value.trim();if(!v)return;S.coins+=3;patch({coins:S.coins});addE('answer',{day:today(),t:v})}
 
 function list(k,who){const a=ent(k);return a.length?a.map(x=>`<div class="item ${x.data.d?'done':''}"><button class="chk" aria-label="Отметить" onclick="tog('${x.id}')"></button><span class="t">${esc(x.data.t)}</span>${who?`<button class="av" style="width:34px;height:34px;flex-basis:34px;font-size:13px;background:var(--${col(x.data.w)})" onclick="swho('${x.id}')">${esc(uname(x.data.w)[0])}</button>`:''}<button class="x" aria-label="Удалить" onclick="delE('${x.id}')">✕</button></div>`).join(''):'<p class="muted">Пусто. Добавьте первое.</p>'}
 function tog(id){const x=E.find(e=>e.id===id);updE(id,{...x.data,d:x.data.d?0:1})}
@@ -165,20 +200,20 @@ function tasks(){return `<h1>Дела</h1><div class="chips"><button class="${se
  <div class="row" style="margin-top:12px"><input id="nw" placeholder="${seg==='todo'?'Новое дело':'Что купить'}" onkeydown="if(event.key==='Enter')add()"><button class="fix" onclick="add()">Добавить</button></div>`}
 
 function us(){const ev=ent('event').sort((x,y)=>x.data.d>y.data.d?1:-1),me_=ent('memory').slice().reverse();
- return `<h1>Мы</h1><h2 style="margin-top:0">Календарь</h2><div class="card">${ev.length?ev.map(e=>`<div class="item"><span class="t"><b>${esc(e.data.t)}</b><div class="muted">${fmt(e.data.d)}</div></span><button class="x" aria-label="Удалить" onclick="delE('${e.id}')">✕</button></div>`).join(''):'<p class="muted">Добавьте первую важную дату.</p>'}</div>
+ return `<h1>Мы</h1>${relCard()}<h2>Календарь</h2><div class="card">${ev.length?ev.map(e=>`<div class="item"><span class="t"><b>${esc(e.data.t)}</b><div class="muted">${fmt(e.data.d)}</div></span><button class="x" aria-label="Удалить" onclick="delE('${e.id}')">✕</button></div>`).join(''):'<p class="muted">Добавьте первую важную дату.</p>'}</div>
  <div class="row" style="margin-top:10px"><input id="et" placeholder="Событие"><input id="ed" type="date" class="fix" style="width:150px"><button class="fix" onclick="addEv()">+</button></div>
  <h2>Наши воспоминания</h2>${me_.map(m=>`<div class="card" style="margin-bottom:8px"><div class="row"><span><b>${esc(m.data.t)}</b><div class="muted">${fmt(m.data.d)} · ${esc(uname(m.created_by))}</div></span><button class="x fix" aria-label="Удалить" onclick="delE('${m.id}')">✕</button></div></div>`).join('')}
  <textarea id="mt" rows="2" placeholder="Что хочется сохранить?"></textarea><button style="margin-top:8px;width:100%" onclick="addMem()">Сохранить момент</button>`}
 function addEv(){const t=$('#et').value.trim(),d=$('#ed').value;if(t&&d)addE('event',{t,d})}
-function addMem(){const t=$('#mt').value.trim();if(t){S.coins+=3;save();addE('memory',{t,d:today()})}}
+function addMem(){const t=$('#mt').value.trim();if(t){S.coins+=3;patch({coins:S.coins});addE('memory',{t,d:today()})}}
 
 function equip(i){S.wear=S.wear.filter(w=>SH.find(x=>x.id===w).slot!==i.slot).concat(i.id)}
 function buy(id){const i=SH.find(x=>x.id===id);
  if(i.st){note='Демо: оплата звёздами заработает после подключения оплаты. Сейчас предмет выдан бесплатно.';S.own.push(id);equip(i)}
  else if(S.coins>=i.c){S.coins-=i.c;S.own.push(id);equip(i);note=''}
  else note='Не хватает монет. Поиграйте с питомцем, и они появятся 🪙';
- save();render()}
-function wear(id){const i=SH.find(x=>x.id===id);S.wear.includes(id)?S.wear=S.wear.filter(x=>x!==id):equip(i);save();render()}
+ patch({coins:S.coins,own:S.own,wear:S.wear});render()}
+function wear(id){const i=SH.find(x=>x.id===id);S.wear.includes(id)?S.wear=S.wear.filter(x=>x!==id):equip(i);patch({wear:S.wear});render()}
 function shop(){return `<h1>Магазин</h1><div class="card" style="text-align:center;padding:4px 0">${pet()}<div class="muted">🪙 ${S.coins} · Ур. ${S.lvl}</div></div>${note?`<p class="bubble">${esc(note)}</p>`:''}
  <div class="duo">${SH.map(i=>{const own=S.own.includes(i.id),on=S.wear.includes(i.id),lock=S.lvl<i.lvl&&!own;return `<div class="card" style="text-align:center"><div style="font-size:34px">${i.e}</div><b>${i.n}</b><div class="muted">${lock?'🔒 Ур. '+i.lvl:own?'Куплено':i.st?'⭐ '+i.st:'🪙 '+i.c}</div><button style="margin-top:8px;width:100%;${on?'background:var(--blue)':''}" ${lock?'disabled':''} onclick="${own?'wear':'buy'}('${i.id}')">${own?(on?'Снять':'Надеть'):'Купить'}</button></div>`}).join('')}</div>`}
 
