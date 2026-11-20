@@ -226,6 +226,7 @@ async function subGate(){try{const tk=(await sb.auth.getSession()).data.session.
 async function subRecheck(){const b=$('#subb');if(b)b.disabled=true;if(await subGate()){screen='load';render();return enter()}toast('Подписка пока не найдена. Подпишитесь и нажмите ещё раз');render()}
 async function enter(){
  try{
+  refSave();
   if(!(await subGate())){screen='sub';return render()}
   const m=await sb.from('members').select('space_id').eq('user_id',me.id).maybeSingle();if(m.error)throw m.error;
   if(!m.data){screen='onb';return render()}
@@ -240,6 +241,7 @@ async function fetchAll(id){
   const ps=E.filter(x=>(x.kind==='memory'||x.kind==='goal')&&x.data.p&&!PU[x.data.p]).map(x=>x.data.p);
   if(ps.length){const r=await sb.storage.from('photos').createSignedUrls(ps,21600);(r.data||[]).forEach(u=>{if(u.signedUrl)PU[u.path]=u.signedUrl})}}catch(e){}
  try{checkAch()}catch(e){}
+ tryRef();
 }
 let t0;function soon(){clearTimeout(t0);t0=setTimeout(async()=>{try{await fetchAll(SP.id);const a=document.activeElement;if(!a||!/INPUT|TEXTAREA/.test(a.tagName))render()}catch(e){}},300)}
 function subscribe(){
@@ -325,7 +327,12 @@ function relCard(){const r=rel(),D=['день','дня','дней'];return `<h2 
  <div class="muted">До годовщины: ${pl(r.toAnn,D)}${r.next?` · до ${r.next} дн.: ${pl(r.next-r.days,D)}`:''}</div><button style="margin-top:10px" onclick="editRel=true;render()">Изменить дату</button>`
  :`<b>Когда началась ваша история?</b><div class="row" style="margin-top:10px"><input id="rd" type="date" max="${today()}" value="${S.rel_start||''}"><button class="fix" onclick="setRel()">Сохранить</button></div>`}</div>`}
 
-function onb(){const sp=(tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||'',K=[['couple','💞 Пара'],['friends','🤝 Друзья'],['custom','✨ Свой вариант']];
+function startP(){return (tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||''}
+function refSave(){const p=startP();if(/^r_[A-Za-z0-9]{3,20}$/.test(p))try{localStorage.setItem('duo_ref',p.slice(2))}catch(e){}}
+async function tryRef(){try{const c=localStorage.getItem('duo_ref');if(!c||MEM.length<2)return;const r=await sb.rpc('claim_ref',{p_code:c});if(!r.error){S=Object.assign({},S,r.data);localStorage.removeItem('duo_ref');toast('Бонус за приглашение: +150 💰');render()}else if(/bad/.test(String(r.error.message)))localStorage.removeItem('duo_ref')}catch(e){}}
+function shareRef(){const l=`https://t.me/${BOT}?startapp=r_${SP.code}`;tg.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(l)+'&text='+encodeURIComponent('Мы пользуемся DuoDay, уютным приложением для двоих 💞 Присоединяйтесь, получите бонус!'))}
+function refCard(){const n=S.ref_n||0;return `<div class="card" style="margin-top:10px"><b>💞 Пригласить другую пару</b><p class="muted" style="margin:6px 0">Когда ваши друзья-пара зарегистрируются по вашей ссылке и подключат вторую половинку, вы оба получите 150 💰. Приглашено: ${n} из 10.</p><div class="row"><button class="fix" onclick="shareRef()">📤 Отправить приглашение</button></div></div>`}
+function onb(){const raw=startP(),sp=/^r_/.test(raw)?'':raw,K=[['couple','💞 Пара'],['friends','🤝 Друзья'],['custom','✨ Свой вариант']];
  return `<h1>Добро пожаловать 💙</h1><div class="card"><b>Как вас зовут?</b><input id="nm" value="${esc(me.name)}" style="margin-top:8px">
  ${sp?`<p>Вас пригласили в общее пространство.</p><button style="width:100%;background:var(--blue)" onclick="join('${esc(sp)}')">Присоединиться</button>`
  :`<h2>Какое у вас пространство?</h2><div class="chips wrap">${K.map(k=>`<button class="${kind===k[0]?'on':''}" onclick="kind='${k[0]}';render()">${k[1]}</button>`).join('')}</div>
@@ -599,7 +606,7 @@ function capSec(){const C=ent('capsule').slice().reverse(),t=today(),o=other();
  <div class="card"><b>Написать в будущее</b><textarea id="ct" rows="3" placeholder="Что хочется сказать вам из будущего?" style="margin-top:8px"></textarea><div class="row" style="margin-top:8px"><input id="cd" type="date" min="${tomorrow()}"><select id="cto"><option value="partner">Партнёру</option><option value="both">Нам обоим</option></select></div><button style="margin-top:8px;width:100%;background:var(--blue)" onclick="capAdd()">Запечатать письмо</button><p class="muted">Письмо скрыто в приложении до выбранной даты. Это красивая задумка, а не шифрование.</p></div>`}
 const ACC={sky:'#8ec5f2',rose:'#f4a6b8',mint:'#8fd3b0',lav:'#b9a6ee',sunset:'#ff9f7a',ocean:'#4fb3d9'},PLUSACC=['sunset','ocean'];
 function setAccent(k){if(PLUSACC.includes(k)&&!plus())return toast('Этот цвет доступен с DuoDay Plus ✨');try{localStorage.accent=ACC[k]}catch(e){}document.documentElement.style.setProperty('--blue',ACC[k]);render()}
-function settings(){return `<div class="row" style="margin-bottom:6px"><button class="fix" onclick="tab='home';render()">← Назад</button></div><h1>Настройки</h1>${prof()}<h2>Подписка</h2>${plusCard()}${plus()?fxCard():''}${grpCard()}${tzCard()}<h2>О приложении</h2><div class="card"><b>DuoDay</b><div class="muted">Общее пространство для двоих. Данные видны только вам двоим.</div><div class="muted" style="margin-top:6px">Версия 14 (подписка)</div></div>`}
+function settings(){return `<div class="row" style="margin-bottom:6px"><button class="fix" onclick="tab='home';render()">← Назад</button></div><h1>Настройки</h1>${prof()}<h2>Подписка</h2>${plusCard()}${plus()?fxCard():''}${refCard()}${grpCard()}${tzCard()}<h2>О приложении</h2><div class="card"><b>DuoDay</b><div class="muted">Общее пространство для двоих. Данные видны только вам двоим.</div><div class="muted" style="margin-top:6px">Версия 15 (подарки, напоминания)</div></div>`}
 const TZS=[['Europe/Kaliningrad','Калининград'],['Europe/Moscow','Москва'],['Europe/Samara','Самара'],['Asia/Yekaterinburg','Екатеринбург'],['Asia/Omsk','Омск'],['Asia/Novosibirsk','Новосибирск'],['Asia/Krasnoyarsk','Красноярск'],['Asia/Irkutsk','Иркутск'],['Asia/Yakutsk','Якутск'],['Asia/Vladivostok','Владивосток'],['Asia/Magadan','Магадан'],['Asia/Kamchatka','Камчатка'],['Europe/Kyiv','Киев'],['Europe/Minsk','Минск'],['Asia/Almaty','Алматы'],['Asia/Tashkent','Ташкент'],['Asia/Tbilisi','Тбилиси'],['Asia/Yerevan','Ереван'],['Asia/Baku','Баку'],['Europe/Berlin','Берлин'],['Europe/London','Лондон'],['Europe/Istanbul','Стамбул'],['Asia/Dubai','Дубай'],['America/New_York','Нью-Йорк'],['America/Los_Angeles','Лос-Анджелес']];
 function grpCard(){const on=!!SP.chat_id;return `<div class="card" style="margin-top:10px"><b>💬 Группа в Telegram</b><p class="muted" style="margin:6px 0">${on?'Группа привязана: уведомления приходят туда.':'Уведомления приходят в личку. Можно получать их в вашей группе.'}</p><ol class="muted" style="margin:0 0 0 18px;padding:0;font-size:13px;line-height:1.5"><li>Добавьте @${BOT} в группу (кнопка ниже)</li><li>Напишите в группе: <b>/connect ${esc(SP.code)}</b></li></ol><div class="row" style="margin-top:10px"><button class="fix" onclick="tg.openTelegramLink('https://t.me/${BOT}?startgroup=1')">➕ Добавить бота в группу</button></div></div>`}
 function tzCard(){let dv='';try{dv=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}const cur=S.tz||dv||'Europe/Moscow',L=TZS.slice();if(!L.some(x=>x[0]===cur))L.unshift([cur,cur]);
@@ -621,7 +628,8 @@ async function gift(g){const t=(($('#gt')||{}).value||'').trim(),op=(($('#go')||
  S=Object.assign({},S,r.data);toast(op?'Подарок отложен до '+fmt(op)+' 🎁':'Подарок отправлен 💙');if(!op)ping('gift');await fetchAll(SP.id);render()}
 function giftSec(){const o=other(),hist=ent('gift').slice().reverse().slice(0,8);return `<h2>Подарок партнёру</h2><div class="card"><input id="gt" placeholder="Пара тёплых слов (для открытки и сертификата)"><div class="row wrap" style="margin-top:8px">${Object.keys(GF).map(g=>`<button onclick="gift('${g}')">${GF[g][0]} ${GF[g][1]}<br><span class="muted">💰 ${GF[g][2]}</span></button>`).join('')}</div>
  <div style="margin-top:12px"><b>Открыть в день</b> <span class="muted">(необязательно)</span><input id="go" type="date" min="${tomorrow()}" style="margin-top:6px"></div>
- <b style="display:block;margin-top:14px">Предмет для дома</b><div class="chips wrap" style="margin-top:6px">${SH.filter(i=>i.slot==='furn'&&!i.rw&&i.c!=null&&S.lvl>=i.lvl).map(i=>`<button onclick="gift('item:${i.id}')">${i.e} ${i.n} · 💰${i.c}</button>`).join('')}</div></div>
+ <b style="display:block;margin-top:14px">Предмет для дома</b><div class="chips wrap" style="margin-top:6px">${SH.filter(i=>i.slot==='furn'&&!i.rw&&i.c!=null&&S.lvl>=i.lvl).map(i=>`<button onclick="gift('item:${i.id}')">${i.e} ${i.n} · 💰${i.c}</button>`).join('')}</div>
+ ${o?`<b style="display:block;margin-top:14px">Особенный подарок за ⭐</b><p class="muted" style="margin:4px 0 6px">Партнёр откроет его как сюрприз, предмет появится у вас обоих.</p><div class="chips wrap">${SH.filter(i=>i.st&&!i.rw&&!i.plus&&!S.own.includes(i.id)).map(i=>`<button onclick="payGift('${i.id}')">${i.e} ${i.n} · ${i.st} ⭐</button>`).join('')||'<span class="muted">У вас уже есть все особенные предметы</span>'}</div>`:''}</div>
  ${hist.length?`<h2>История подарков</h2><div class="card">${hist.map(x=>{const gi=gInfo(x.data.g),mn=x.created_by===me.id;return `<div class="item"><span class="t">${gi[0]} ${esc(gi[1])}<div class="muted">${mn?'вы → '+esc(o?o.name:'партнёру'):esc(uname(x.created_by))+' → вам'} · ${new Date(x.created_at).toLocaleDateString('ru-RU')}${x.data.open&&x.data.open>today()?' · откроется '+fmt(x.data.open):''}</div></span></div>`}).join('')}</div>`:''}`}
 async function upl(f){const b=await new Promise((ok,no)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(ok,'image/jpeg',.8)};im.onerror=no;im.src=URL.createObjectURL(f)});
  const p=SP.id+'/'+Date.now()+'.jpg',r=await sb.storage.from('photos').upload(p,b,{contentType:'image/jpeg'});if(r.error)throw r.error;return p}
@@ -640,9 +648,10 @@ async function addMem(){const t=$('#mt').value.trim(),ti=$('#mti').value.trim(),
 
 function equip(i){S.wear=S.wear.filter(w=>SH.find(x=>x.id===w).slot!==i.slot).concat(i.id)}
 const PLUS_STARS=99,plus=()=>(S.plus_until||0)>Date.now()/1000;
-async function pay(item){try{const tk=(await sb.auth.getSession()).data.session.access_token,r=await fetch(SB_URL+'/functions/v1/swift-endpoint',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+tk},body:JSON.stringify({space:SP.id,item})}),j=await r.json();
- if(!r.ok||!j.link)throw new Error(j.error||r.status);
- tg.openInvoice(j.link,st=>{if(st==='paid'){toast('Спасибо! Всё появится через несколько секунд 💙');setTimeout(()=>fetchAll(SP.id).then(render),3000)}else if(st==='failed')toast('Оплата не прошла');render()})}
+function payGift(id){const i=SH.find(x=>x.id===id);ask('Подарить «'+i.n+'» партнёру за '+i.st+' ⭐?',()=>pay(id,1))}
+async function pay(item,gift){try{const tk=(await sb.auth.getSession()).data.session.access_token,r=await fetch(SB_URL+'/functions/v1/swift-endpoint',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+tk},body:JSON.stringify({space:SP.id,item,...(gift?{gift:1}:{})})}),j=await r.json();
+ if(!r.ok||!j.link)throw new Error(j.error==='nopartner'?'Подарок можно отправить, когда партнёр присоединится':(j.error||r.status));
+ tg.openInvoice(j.link,st=>{if(st==='paid'){toast(gift?'Подарок отправлен! Партнёр найдёт его в разделе подарков 🎁':'Спасибо! Всё появится через несколько секунд 💙');setTimeout(()=>fetchAll(SP.id).then(render),3000)}else if(st==='failed')toast('Оплата не прошла');render()})}
  catch(e){toast('Оплата пока недоступна: '+String((e&&e.message)||e))}}
 async function buy(id){const it=SH.find(x=>x.id===id);
  if(it&&it.st)return pay(id);
